@@ -64,17 +64,6 @@ case "$usbchgdisabled" in
     esac
 esac
 
-usbcurrentlimit=`getprop persist.usb.currentlimit`
-case "$usbcurrentlimit" in
-    "") ;; #Do nothing here
-    * )
-    case $target in
-        "msm8960")
-        echo "$usbcurrentlimit" > /sys/module/pm8921_charger/parameters/usb_max_current
-	;;
-    esac
-esac
-
 #
 # Check ESOC for external MDM
 #
@@ -128,12 +117,6 @@ case "$usb_config" in
 	      ;;
               *)
 	      case "$target" in
-                  "msm8916")
-		      setprop persist.sys.usb.config diag,serial_smd,rmnet_bam,adb
-		  ;;
-	          "msm8994" | "msm8992")
-	              setprop persist.sys.usb.config diag,serial_smd,serial_tty,rmnet_ipa,mass_storage,adb
-		  ;;
 	          "msm8996")
 	              setprop persist.sys.usb.config diag,serial_cdev,serial_tty,rmnet_ipa,mass_storage,adb
 		  ;;
@@ -167,13 +150,6 @@ case "$target" in
 	if [ "$baseband" == "apq" ]; then
 		echo "msm_hsic_host" > /sys/bus/platform/drivers/xhci_msm_hsic/unbind
 	fi
-    ;;
-    "msm8226")
-         if [ -e /sys/bus/platform/drivers/msm_hsic_host ]; then
-             if [ ! -L /sys/bus/usb/devices/1-1 ]; then
-                 echo msm_hsic_host > /sys/bus/platform/drivers/msm_hsic_host/unbind
-             fi
-         fi
     ;;
     "msm8994" | "msm8992" | "msm8996" | "msm8953" | "msm8940")
         echo BAM2BAM_IPA > /sys/class/android_usb/android0/f_rndis_qc/rndis_transports
@@ -223,23 +199,6 @@ case "$baseband" in
           # Allow QMUX daemon to assign port open wait time
           chown -h radio.radio /sys/devices/virtual/hsicctl/hsicctl0/modem_wait
     ;;
-esac
-
-#
-# Add support for exposing lun0 as cdrom in mass-storage
-#
-cdromname="/system/etc/cdrom_install.iso"
-platformver=`cat /sys/devices/soc0/hw_platform`
-case "$target" in
-	"msm8226" | "msm8610" | "msm8916")
-		case $platformver in
-			"QRD")
-				echo "mounting usbcdrom lun"
-				echo $cdromname > /sys/class/android_usb/android0/f_mass_storage/rom/file
-				chmod 0444 /sys/class/android_usb/android0/f_mass_storage/rom/file
-				;;
-		esac
-		;;
 esac
 
 #
