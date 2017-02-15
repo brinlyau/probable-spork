@@ -44,13 +44,6 @@ start_msm_irqbalance_8939()
 	fi
 }
 
-start_msm_irqbalance()
-{
-	if [ -f /system/bin/msm_irqbalance ]; then
-		start msm_irqbalance
-	fi
-}
-
 start_copying_prebuilt_qcril_db()
 {
     if [ -f /system/vendor/qcril.db -a ! -f /data/misc/radio/qcril.db ]; then
@@ -69,61 +62,6 @@ case "$baseband" in
 esac
 
 case "$target" in
-    "msm7630_surf" | "msm7630_1x" | "msm7630_fusion")
-        if [ -f /sys/devices/soc0/hw_platform ]; then
-            value=`cat /sys/devices/soc0/hw_platform`
-        else
-            value=`cat /sys/devices/system/soc/soc0/hw_platform`
-        fi
-        case "$value" in
-            "Fluid")
-             start profiler_daemon;;
-        esac
-        ;;
-    "msm8660" )
-        if [ -f /sys/devices/soc0/hw_platform ]; then
-            platformvalue=`cat /sys/devices/soc0/hw_platform`
-        else
-            platformvalue=`cat /sys/devices/system/soc/soc0/hw_platform`
-        fi
-        case "$platformvalue" in
-            "Fluid")
-                start profiler_daemon;;
-        esac
-        ;;
-    "apq8084")
-        platformvalue=`cat /sys/devices/soc0/hw_platform`
-        case "$platformvalue" in
-             "Fluid")
-                 start profiler_daemon;;
-             "Liquid")
-                 start profiler_daemon;;
-        esac
-        ;;
-    "msm8994" | "msm8992" | "msmcobalt")
-        start_msm_irqbalance
-        ;;
-    "msm8996")
-        if [ -f /sys/devices/soc0/hw_platform ]; then
-             hw_platform=`cat /sys/devices/soc0/hw_platform`
-        fi
-        case "$hw_platform" in
-                "MTP" | "CDP")
-                #Loop through the sysfs nodes and determine the correct sysfs to change the permission and ownership.
-                        for count in 0 1 2 3 4 5 6 7 8 9 10
-                        do
-                                dir="/sys/devices/soc/75ba000.i2c/i2c-12/12-0020/input/input"$count
-                                if [ -d "$dir" ]; then
-                                     chmod 0660 $dir/secure_touch_enable
-                                     chmod 0440 $dir/secure_touch
-                                     chown system.drmrpc $dir/secure_touch_enable
-                                     chown system.drmrpc $dir/secure_touch
-                                     break
-                                fi
-                        done
-                        ;;
-        esac
-        ;;
     "msm8937")
         start_msm_irqbalance_8939
         if [ -f /sys/devices/soc0/soc_id ]; then
