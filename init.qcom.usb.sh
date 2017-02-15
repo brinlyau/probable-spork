@@ -44,8 +44,6 @@ else
     soc_revision=`cat /sys/devices/system/soc/soc0/revision` 2> /dev/null
 fi
 
-fi
-
 # check configfs is mounted or not
 if [ -d /config/usb_gadget ]; then
 	setprop sys.usb.configfs 1
