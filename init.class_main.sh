@@ -33,14 +33,11 @@ baseband=`getprop ro.baseband`
 datamode=`getprop persist.data.mode`
 
 case "$baseband" in
-    "msm" | "csfb" | "svlte2a" | "mdm" | "mdm2" | "sglte" | "sglte2" | "dsda2" | "unknown" | "dsda3")
+    "msm" | "csfb" | "svlte2a" | "mdm" | "mdm2" | "dsda2" | "unknown" | "dsda3")
     start qmuxd
     start ipacm-diag
     start ipacm
     case "$baseband" in
-        "svlte2a" | "csfb")
-          start qmiproxy
-        ;;
         "dsda2")
           setprop persist.radio.multisim.config dsda
     esac

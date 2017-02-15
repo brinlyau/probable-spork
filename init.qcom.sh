@@ -52,73 +52,14 @@ start_copying_prebuilt_qcril_db()
     fi
 }
 
-baseband=`getprop ro.baseband`
 echo 1 > /proc/sys/net/ipv6/conf/default/accept_ra_defrtr
-
-case "$baseband" in
-        "svlte2a")
-        start bridgemgrd
-        ;;
-esac
 
 case "$target" in
     "msm8937")
         start_msm_irqbalance_8939
-        if [ -f /sys/devices/soc0/soc_id ]; then
-            soc_id=`cat /sys/devices/soc0/soc_id`
-        else
-            soc_id=`cat /sys/devices/system/soc/soc0/id`
-        fi
-
-        if [ -f /sys/devices/soc0/hw_platform ]; then
-             hw_platform=`cat /sys/devices/soc0/hw_platform`
-        else
-             hw_platform=`cat /sys/devices/system/soc/soc0/hw_platform`
-        fi
-        case "$soc_id" in
-             "294" | "295" | "303" | "307" | "308" | "309" | "313")
-                  case "$hw_platform" in
-                       "Surf")
-                                    setprop qemu.hw.mainkeys 0
-                                    ;;
-                       "MTP")
-                                    setprop qemu.hw.mainkeys 0
-                                    ;;
-                       "RCM")
-                                    setprop qemu.hw.mainkeys 0
-                                    ;;
-                  esac
-                  ;;
-       esac
         ;;
     "msm8953")
 	start_msm_irqbalance_8939
-        if [ -f /sys/devices/soc0/soc_id ]; then
-            soc_id=`cat /sys/devices/soc0/soc_id`
-        else
-            soc_id=`cat /sys/devices/system/soc/soc0/id`
-        fi
-
-        if [ -f /sys/devices/soc0/hw_platform ]; then
-             hw_platform=`cat /sys/devices/soc0/hw_platform`
-        else
-             hw_platform=`cat /sys/devices/system/soc/soc0/hw_platform`
-        fi
-        case "$soc_id" in
-             "293" | "304" )
-                  case "$hw_platform" in
-                       "Surf")
-                                    setprop qemu.hw.mainkeys 0
-                                    ;;
-                       "MTP")
-                                    setprop qemu.hw.mainkeys 0
-                                    ;;
-                       "RCM")
-                                    setprop qemu.hw.mainkeys 0
-                                    ;;
-                  esac
-                  ;;
-       esac
         ;;
 esac
 
