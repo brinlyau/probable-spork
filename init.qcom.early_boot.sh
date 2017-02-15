@@ -70,17 +70,6 @@ function set_density_by_fb() {
 }
 target=`getprop ro.board.platform`
 case "$target" in
-    "msm8996")
-        case "$soc_hwplatform" in
-            "Dragon")
-                setprop ro.sf.lcd_density 240
-                setprop qemu.hw.mainkeys 0
-                ;;
-            *)
-                setprop ro.sf.lcd_density 480
-                ;;
-        esac
-        ;;
     "msm8937" | "msm8940")
         # Set ro.opengles.version based on chip id.
         # MSM8937 and MSM8940  variants supports OpenGLES 3.1
