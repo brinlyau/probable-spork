@@ -55,6 +55,44 @@ start_copying_prebuilt_qcril_db()
     fi
 }
 
+#
+# start ril-daemon only for targets on which radio is present
+#
+baseband=`getprop ro.baseband`
+datamode=`getprop persist.data.mode`
+
+case "$baseband" in
+    "msm" | "unknown" | "dsda3")
+    start qmuxd
+    start ipacm-diag
+    start ipacm
+    case "$baseband" in
+        "dsda2")
+          setprop persist.radio.multisim.config dsda
+    esac
+
+    multisim=`getprop persist.radio.multisim.config`
+
+    if [ "$multisim" = "dsds" ] || [ "$multisim" = "dsda" ]; then
+        start ril-daemon2
+    fi
+
+    case "$datamode" in
+        "tethered")
+            start qti
+            start port-bridge
+            ;;
+        "concurrent")
+            start qti
+            start netmgrd
+            start port-bridge
+            ;;
+        *)
+            start netmgrd
+            ;;
+    esac
+esac
+
 echo 1 > /proc/sys/net/ipv6/conf/default/accept_ra_defrtr
 
 bootmode=`getprop ro.bootmode`
@@ -67,6 +105,7 @@ case "$emmc_boot"
         fi
     ;;
 esac
+
 
 #
 # Copy qcril.db if needed for RIL
