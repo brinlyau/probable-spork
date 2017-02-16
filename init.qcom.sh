@@ -33,16 +33,8 @@ else
     platformid=`cat /sys/devices/system/soc/soc0/id`
 fi
 
-
-start_msm_irqbalance_8939()
 start_sensors()
 {
-	if [ -f /system/bin/msm_irqbalance ]; then
-		case "$platformid" in
-		    "239" | "293" | "294" | "295" | "304")
-			start msm_irqbalance;;
-		esac
-	fi
     if [ -c /dev/msm_dsps -o -c /dev/sensors ]; then
         chmod -h 775 /persist/sensors
         chmod -h 664 /persist/sensors/sensors_settings
@@ -65,15 +57,6 @@ start_copying_prebuilt_qcril_db()
 
 echo 1 > /proc/sys/net/ipv6/conf/default/accept_ra_defrtr
 
-case "$target" in
-    "msm8937")
-        start_msm_irqbalance_8939
-        ;;
-    "msm8953")
-	start_msm_irqbalance_8939
-        ;;
-esac
-
 bootmode=`getprop ro.bootmode`
 emmc_boot=`getprop ro.boot.emmc`
 case "$emmc_boot"
@@ -90,6 +73,7 @@ esac
 #
 start_copying_prebuilt_qcril_db
 start_sensors
+start msm_irqbalance
 echo 1 > /data/misc/radio/db_check_done
 
 #
