@@ -1106,17 +1106,6 @@ service seemp_healthd /system/vendor/bin/seemp_healthd
 on charger
     setprop persist.sys.usb.config charging
 
-#add poweroffhandler
-service poweroffhandler /system/bin/bqbootanimation /system/media/shutdownanimation.mp4
-    class core
-    user media
-    group graphics audio
-    disabled
-    oneshot
-
-on property:service.poweroffhandler.exit=1
-    stop poweroffhandler
-    
 service fingerprintd /system/bin/fingerprintd
     class late_start
     user system
