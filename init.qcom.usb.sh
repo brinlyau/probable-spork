@@ -49,58 +49,21 @@ if [ -d /config/usb_gadget ]; then
 	setprop sys.usb.configfs 1
 fi
 
+usb_config=`getprop persist.sys.usb.config`
+diag_extra=`getprop persist.sys.usb.config.extra`
+
+
 #
 # Allow USB enumeration with default PID/VID
 #
-baseband=`getprop ro.baseband`
 echo 1  > /sys/class/android_usb/f_mass_storage/lun/nofua
-usb_config=`getprop persist.sys.usb.config`
-case "$usb_config" in
-    "" | "adb") #USB persist config not set, select default configuration
-      case "$esoc_link" in
-          "PCIe")
-              setprop persist.sys.usb.config diag,diag_mdm,serial_cdev,rmnet_qti_ether,mass_storage,adb
-          ;;
-          *)
-	  case "$soc_hwplatform" in
-	      "Dragon")
-	          setprop persist.sys.usb.config diag,adb
-	      ;;
-              *)
-	      case "$target" in
-	          "msm8909" | "msm8937")
-		      setprop persist.sys.usb.config diag,serial_smd,rmnet_qti_bam,adb
-		  ;;
-	          "msm8952" | "msm8953" | "msm8940")
-		      setprop persist.sys.usb.config diag,serial_smd,rmnet_ipa,adb
-		  ;;
-	          *)
-		      setprop persist.sys.usb.config diag,adb
-		  ;;
-              esac
-	      ;;
-	  esac
-	  ;;
-      esac
-      ;;
-  * ) ;; #USB persist config exists, do nothing
-esac
 
-#
-# Do target specific things
-#
-case "$target" in
-    "msm8994" | "msm8992" | "msm8996" | "msm8953" | "msm8940")
-        echo BAM2BAM_IPA > /sys/class/android_usb/android0/f_rndis_qc/rndis_transports
-        echo 131072 > /sys/module/g_android/parameters/mtp_tx_req_len
-        echo 131072 > /sys/module/g_android/parameters/mtp_rx_req_len
-    ;;
-esac
+setprop persist.sys.usb.config diag,serial_smd,rmnet_qti_bam,adb
+
 
 #
 # Initialize RNDIS Diag option. If unset, set it to 'none'.
 #
-diag_extra=`getprop persist.sys.usb.config.extra`
 if [ "$diag_extra" == "" ]; then
 	setprop persist.sys.usb.config.extra none
 fi

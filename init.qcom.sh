@@ -27,11 +27,6 @@
 #
 chown -h system:system /sys/devices/soc/qpnp-smbcharger-*/battery_max_current
 target=`getprop ro.board.platform`
-if [ -f /sys/devices/soc0/soc_id ]; then
-    platformid=`cat /sys/devices/soc0/soc_id`
-else
-    platformid=`cat /sys/devices/system/soc/soc0/id`
-fi
 
 start_sensors()
 {
@@ -62,14 +57,10 @@ baseband=`getprop ro.baseband`
 datamode=`getprop persist.data.mode`
 
 case "$baseband" in
-    "msm" | "unknown" | "dsda3")
+    "msm" | "unknown")
     start qmuxd
     start ipacm-diag
     start ipacm
-    case "$baseband" in
-        "dsda2")
-          setprop persist.radio.multisim.config dsda
-    esac
 
     multisim=`getprop persist.radio.multisim.config`
 
