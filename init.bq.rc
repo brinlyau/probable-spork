@@ -7,6 +7,13 @@ service sdlog /system/bin/sdlog
 on property:persist.service.sdlog.enable=1
     start sdlog
 
+# bugreport is triggered by developer options
+service bugreport /system/bin/dumpstate -d -p -B \
+        -o /data/data/com.android.shell/files/bugreports/bugreport
+    class main
+    disabled
+    oneshot
+
 service mmc-info /system/bin/sh /system/etc/mmc-info.sh
     disabled
     oneshot
