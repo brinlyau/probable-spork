@@ -1,0 +1,10 @@
+#add poweroffhandler
+service poweroffhandler /system/bin/bqbootanimation /system/media/shutdownanimation.mp4
+    class core
+    user media
+    group graphics audio
+    disabled
+    oneshot
+
+on property:service.poweroffhandler.exit=1
+    stop poweroffhandler

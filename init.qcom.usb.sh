@@ -92,21 +92,12 @@ done
 fi
 
 target=`getprop ro.board.platform`
-# set USB controller's device node
-case "$target" in
-    "msm8996")
-        setprop sys.usb.controller "6a00000.dwc3"
-	;;
-    "msmcobalt")
-        setprop sys.usb.controller "a800000.dwc3"
-	;;
-    *)
-	;;
-esac
 
-# check configfs is mounted or not
-if [ -d /config/usb_gadget ]; then
-	setprop sys.usb.configfs 1
+# soc_ids for 8937
+if [ -f /sys/devices/soc0/soc_id ]; then
+	soc_id=`cat /sys/devices/soc0/soc_id`
+else
+	soc_id=`cat /sys/devices/system/soc/soc0/id`
 fi
 
 #
@@ -122,10 +113,15 @@ case "$usb_config" in
               setprop persist.sys.usb.config diag,diag_mdm,serial_cdev,rmnet_qti_ether,mass_storage,adb
           ;;
           *)
-	  case "$soc_hwplatform" in
-	      "Dragon")
+	  case "$baseband" in
+	      "apq")
 	          setprop persist.sys.usb.config diag,adb
 	      ;;
+	      *)
+	      case "$soc_hwplatform" in
+	          "Dragon" | "SBC")
+	              setprop persist.sys.usb.config diag,adb
+	          ;;
               *)
 	      case "$target" in
                   "msm8916")
@@ -137,14 +133,29 @@ case "$usb_config" in
 	          "msm8996")
 	              setprop persist.sys.usb.config diag,serial_cdev,serial_tty,rmnet_ipa,mass_storage,adb
 		  ;;
-	          "msm8909" | "msm8937")
-		      setprop persist.sys.usb.config diag,serial_smd,rmnet_qti_bam,adb
+	          "msm8909")
+		          setprop persist.sys.usb.config diag,serial_smd,rmnet_qti_bam,adb
+		      ;;
+	          "msm8937")
+			    case "$soc_id" in
+				    "313" | "320")
+				       setprop persist.sys.usb.config diag,serial_smd,rmnet_ipa,adb
+				    ;;
+				    *)
+				       setprop persist.sys.usb.config diag,serial_smd,rmnet_qti_bam,adb
+				    ;;
+			    esac
+		      ;;
+	              "msm8952" | "msm8953")
+		          setprop persist.sys.usb.config diag,serial_smd,rmnet_ipa,adb
+		      ;;
+	              "msm8998")
+		          setprop persist.sys.usb.config diag,serial_cdev,rmnet_gsi,adb
+		      ;;
+	              *)
+		          setprop persist.sys.usb.config diag,adb
 		  ;;
-	          "msm8952" | "msm8953" | "msm8940")
-		      setprop persist.sys.usb.config diag,serial_smd,rmnet_ipa,adb
-		  ;;
-	          *)
-		      setprop persist.sys.usb.config diag,adb
+	          esac
 		  ;;
               esac
 	      ;;
@@ -154,6 +165,29 @@ case "$usb_config" in
       ;;
   * ) ;; #USB persist config exists, do nothing
 esac
+
+# set USB controller's device node
+case "$target" in
+    "msm8996")
+        setprop sys.usb.controller "6a00000.dwc3"
+        setprop sys.usb.rndis.func.name "rndis_bam"
+	;;
+    "msm8998")
+        setprop sys.usb.controller "a800000.dwc3"
+        setprop sys.usb.rndis.func.name "gsi"
+	;;
+    "msmfalcon")
+        setprop sys.usb.controller "a800000.dwc3"
+        setprop sys.usb.rndis.func.name "rndis_bam"
+        ;;
+    *)
+	;;
+esac
+
+# check configfs is mounted or not
+if [ -d /config/usb_gadget ]; then
+	setprop sys.usb.configfs 1
+fi
 
 #
 # Do target specific things
@@ -175,11 +209,18 @@ case "$target" in
              fi
          fi
     ;;
-    "msm8994" | "msm8992" | "msm8996" | "msm8953" | "msm8940")
+    "msm8994" | "msm8992" | "msm8996" | "msm8953")
         echo BAM2BAM_IPA > /sys/class/android_usb/android0/f_rndis_qc/rndis_transports
         echo 131072 > /sys/module/g_android/parameters/mtp_tx_req_len
         echo 131072 > /sys/module/g_android/parameters/mtp_rx_req_len
     ;;
+    "msm8937")
+	case "$soc_id" in
+		"313" | "320")
+		   echo BAM2BAM_IPA > /sys/class/android_usb/android0/f_rndis_qc/rndis_transports
+		;;
+	esac
+   ;;
 esac
 
 #

@@ -35,9 +35,6 @@ on early-init
     symlink /data/tombstones /tombstones
     mkdir /dsp 0771 media media
 
-on post-fs
-    export LD_PRELOAD libNimsWrap.so
-
 on fs
     wait /dev/block/bootdevice
     mount_all fstab.qcom
@@ -53,11 +50,11 @@ on fs
     wait /dev/block/bootdevice/by-name/persist
     mount ext4 /dev/block/bootdevice/by-name/persist /persist nosuid nodev barrier=1
     mkdir /persist/data 0700  system system
+    mkdir /persist/bms 0700 root system
     restorecon_recursive   /persist
 
     wait /dev/block/bootdevice/by-name/dsp
-    mount ext4 /dev/block/bootdevice/by-name/dsp /dsp nosuid nodev barrier=1
-    restorecon_recursive   /dsp
+    mount ext4 /dev/block/bootdevice/by-name/dsp /dsp ro nosuid nodev barrier=1
 
     wait /dev/block/bootdevice/by-name/modem
     mount vfat /dev/block/bootdevice/by-name/modem /firmware ro context=u:object_r:firmware_file:s0,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337
@@ -76,10 +73,6 @@ on post-fs-data
     mkdir /persist/data/tz 0700 system system
     mkdir /data/misc/hbtp 0750 system system
     mkdir /data/misc/dts 0770 media audio
-
-    # Tap to Wake
-    chown root system /sys/android_touch/wakeup_gesture_enable
-    chmod 0660 /sys/android_touch/wakeup_gesture_enable
 
 #start camera server as daemon
 service qcamerasvr /system/bin/mm-qcamera-daemon
@@ -125,7 +118,7 @@ service qseecomd /system/bin/qseecomd
 #service aostlmd /system/bin/aostlmd
 #   class late_start
 #   user system
-#   group system net_raw
+#   group system
 
 #service mpdecision /system/bin/mpdecision --avg_comp
 #   user root
@@ -229,11 +222,6 @@ service imsqmidaemon /system/bin/imsqmidaemon
     group radio net_raw log diag
     disabled
 
-service FactoryNvServer /system/bin/FactoryNvServer
-   class main
-   user system
-   group system
-
 on property:service.qti.ims.enabled=1
     start imsqmidaemon
 
@@ -257,11 +245,11 @@ service ims_rtp_daemon /system/bin/ims_rtp_daemon
 service imscmservice /system/bin/imscmservice
    class main
    user system
-   group radio net_raw diag diag log
+   group radio diag inet log
    disabled
 
 on property:sys.ims.DATA_DAEMON_STATUS=1
-    #start ims_rtp_daemon
+    start ims_rtp_daemon
     start imscmservice
 
 service hbtp /system/vendor/bin/hbtp_daemon
@@ -320,4 +308,3 @@ service mdtpd /system/vendor/bin/mdtpd
 on boot
     write /sys/devices/soc.0/78b8000.i2c/i2c-4/4-0020/input/input0/fw_name PR1702898-s3528t_00260005_00380008.img
     write /sys/devices/soc.0/78b8000.i2c/i2c-4/4-0020/input/input0/update_fw 1
-
