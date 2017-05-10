@@ -29,7 +29,7 @@ ro.logdumpd.enabled=0
 #
 # BOOTIMAGE_BUILD_PROPERTIES
 #
-ro.bootimage.build.date=Tue Mar 21 17:21:16 CET 2017
-ro.bootimage.build.date.utc=1490113276
-ro.bootimage.build.fingerprint=bq/tenshi/tenshi:7.1.1/NMF26F/1490113276:user/release-keys
+ro.bootimage.build.date=Thu Apr 20 13:30:06 CEST 2017
+ro.bootimage.build.date.utc=1492687806
+ro.bootimage.build.fingerprint=bq/tenshi/tenshi:7.1.1/NMF26F/1492687806:user/release-keys
 persist.sys.usb.config=none
